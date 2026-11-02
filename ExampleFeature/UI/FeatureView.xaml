@@ -1,0 +1,73 @@
+<UserControl x:Class="InventorWpfMvvmTemplate.ExampleFeature.UI.FeatureView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:InventorWpfMvvmTemplate.ExampleFeature.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="350"
+             d:DataContext="{d:DesignInstance Type=local:FeatureViewModel, IsDesignTimeCreatable=True}"
+             FontFamily="Segoe UI">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <Border Margin="12"
+                Padding="16"
+                Background="{DynamicResource CardBackgroundBrush}"
+                CornerRadius="8"
+                BorderBrush="{DynamicResource CardBorderBrush}"
+                BorderThickness="1">
+            <StackPanel Orientation="Vertical">
+                <!-- Title -->
+                <TextBlock Text="Feature Dockable Window"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           Margin="0,0,0,16" />
+
+                <!-- Active Document Info -->
+                <TextBlock Text="ACTIVE DOCUMENT"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource SecondaryTextBrush}" />
+
+                <TextBlock Text="{Binding ActiveDocumentName}"
+                           FontSize="13"
+                           FontWeight="Medium"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           Margin="0,4,0,16"
+                           TextWrapping="Wrap" />
+
+                <Separator Background="{DynamicResource SeparatorBrush}" Margin="0,0,0,16" />
+
+                <!-- Example Action Button -->
+                <Button Content="Example Action"
+                        Command="{Binding ExampleButtonCommand}"
+                        Height="36"
+                        FontSize="13"
+                        FontWeight="SemiBold"
+                        Foreground="{DynamicResource ButtonForegroundBrush}"
+                        Background="{DynamicResource ButtonBackgroundBrush}"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,0,16">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="6" />
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <!-- Status Feedback -->
+                <TextBlock Text="STATUS"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource SecondaryTextBrush}" />
+
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="13"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           Margin="0,4,0,0"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

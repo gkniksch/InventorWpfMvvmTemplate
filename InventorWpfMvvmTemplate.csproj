@@ -1,0 +1,104 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Target Framework:
+      Defaults to net8.0-windows for broad compatibility with Inventor 2025.
+      Can be set or switched to net10.0-windows (for .NET 10 / future Inventor releases):
+        dotnet build InventorWpfMvvmTemplate.csproj /t:Restore,Build -p:TargetFramework=net10.0-windows
+      Or simply update <TargetFramework> to net10.0-windows below when ready to migrate.
+    -->
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
+    <!-- WinForms enabled for AxHost to convert Bitmap images to IPictureDisp for Inventor ribbon buttons -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>InventorWpfMvvmTemplate</RootNamespace>
+    <AssemblyName>InventorWpfMvvmTemplate</AssemblyName>
+
+    <!-- Support .NET 8 / .NET 10 roll forward if run on newer .NET runtimes -->
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+
+  <!--
+    Inventor install and add-in deployment locations.
+    Customize AddinVendorFolder with your company or personal folder name (e.g., Acme, MyCompany).
+    To target another Inventor version or non-default path:
+      dotnet build -p:InventorVersion=2026 -p:AddinVendorFolder=MyCompany
+    To target .NET 10:
+      dotnet build /t:Restore,Build -p:TargetFramework=net10.0-windows
+    To disable automatic deployment during CI builds:
+      dotnet build -p:DeployAddin=false
+  -->
+  <PropertyGroup>
+    <InventorVersion Condition="'$(InventorVersion)' == ''">2025</InventorVersion>
+    <InventorInstallDir Condition="'$(InventorInstallDir)' == ''">$(ProgramW6432)\Autodesk\Inventor $(InventorVersion)\</InventorInstallDir>
+    <InventorAddinsDir Condition="'$(InventorAddinsDir)' == ''">$(APPDATA)\Autodesk\Inventor $(InventorVersion)\Addins\</InventorAddinsDir>
+    <AddinVendorFolder Condition="'$(AddinVendorFolder)' == ''">GKN</AddinVendorFolder>
+    <AddinDeployDir>$(InventorAddinsDir)$(AddinVendorFolder)\$(AssemblyName)\</AddinDeployDir>
+    <AddinManifestPath>$(InventorAddinsDir)$(AssemblyName).addin</AddinManifestPath>
+    <DeployAddin Condition="'$(DeployAddin)' == ''">true</DeployAddin>
+  </PropertyGroup>
+
+  <!-- Visual Studio Debug settings -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(InventorInstallDir)Bin\Inventor.exe</StartProgram>
+    <StartWorkingDirectory>$(InventorInstallDir)Bin</StartWorkingDirectory>
+  </PropertyGroup>
+
+  <!-- Auto-resolve Autodesk.Inventor.Interop from Public Assemblies or Bin across Inventor 2025+ versions -->
+  <ItemGroup>
+    <Reference Include="Autodesk.Inventor.Interop" Condition="Exists('$(InventorInstallDir)Bin\Public Assemblies\Autodesk.Inventor.Interop.dll')">
+      <HintPath>$(InventorInstallDir)Bin\Public Assemblies\Autodesk.Inventor.Interop.dll</HintPath>
+      <Private>false</Private>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Autodesk.Inventor.Interop" Condition="!Exists('$(InventorInstallDir)Bin\Public Assemblies\Autodesk.Inventor.Interop.dll') and Exists('$(InventorInstallDir)Bin\Autodesk.Inventor.Interop.dll')">
+      <HintPath>$(InventorInstallDir)Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <Private>false</Private>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Icons\*.png" />
+    <None Update="InventorWpfMvvmTemplate.addin" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
+  <!--
+    DeployAddin target:
+    Copies the build output to %APPDATA%\Autodesk\Inventor <Version>\Addins\<Vendor>\<AssemblyName>\
+    and writes the .addin manifest to the Addins folder with {AssemblyPath} resolved.
+    If Inventor is running and has the DLL locked, the copy gracefully warns so compilation still succeeds.
+  -->
+  <Target Name="DeployAddin" AfterTargets="Build" Condition="'$(DeployAddin)' == 'true'">
+    <ItemGroup>
+      <_AddinDeployFile Include="$(TargetDir)**\*" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_AddinManifestText>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\InventorWpfMvvmTemplate.addin').Replace('{AssemblyPath}', '$(AddinVendorFolder)\$(AssemblyName)\$(TargetFileName)'))</_AddinManifestText>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(AddinManifestPath)"
+                      Lines="$(_AddinManifestText)"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true"
+                      ContinueOnError="WarnAndContinue" />
+
+    <Copy SourceFiles="@(_AddinDeployFile)"
+          DestinationFiles="@(_AddinDeployFile->'$(AddinDeployDir)%(RecursiveDir)%(Filename)%(Extension)')"
+          Retries="0"
+          ContinueOnError="WarnAndContinue" />
+
+    <Message Importance="high" Condition="'$(MSBuildLastTaskResult)' == 'true'"
+             Text="$(AssemblyName) -&gt; deployed to $(AddinDeployDir)" />
+    <Warning Condition="'$(MSBuildLastTaskResult)' != 'true'"
+             Text="$(AssemblyName) was built but NOT deployed to $(AddinDeployDir). Inventor is probably running and has the add-in loaded; close Inventor and build again." />
+  </Target>
+
+</Project>

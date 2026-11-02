@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "GKN",
+  "classifications": [ "Autodesk", "Inventor", "WPF", "MVVM", "AddIn" ],
+  "name": "Autodesk Inventor WPF MVVM Add-in (.NET 8 / .NET 10)",
+  "identity": "InventorWpfMvvmTemplate",
+  "shortName": "inventor-wpf",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "InventorWpfMvvmTemplate",
+  "preferNameDirectory": true,
+  "guids": [
+    "36FCD227-1C39-449D-9A67-DE1F5CF2D0C4"
+  ],
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "net8.0-windows",
+          "description": "Target .NET 8 (Inventor 2025+ default)"
+        },
+        {
+          "choice": "net10.0-windows",
+          "description": "Target .NET 10"
+        }
+      ],
+      "defaultValue": "net8.0-windows",
+      "description": "The target framework for the project",
+      "replaces": "net8.0-windows"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            ".git/**",
+            ".vs/**",
+            "bin/**",
+            "obj/**",
+            ".template.config/**"
+          ]
+        }
+      ]
+    }
+  ]
+}

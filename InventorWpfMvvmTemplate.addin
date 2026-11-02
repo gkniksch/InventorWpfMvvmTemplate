@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Autodesk Inventor 2025+ Add-in Manifest
+  The {AssemblyPath} placeholder is automatically replaced during build by the DeployAddin target.
+-->
+<Addin Type="Standard">
+  <ClassId>{36FCD227-1C39-449D-9A67-DE1F5CF2D0C4}</ClassId>
+  <ClientId>{36FCD227-1C39-449D-9A67-DE1F5CF2D0C4}</ClientId>
+  <DisplayName>Inventor WPF MVVM Addin Template</DisplayName>
+  <Description>Inventor WPF MVVM Addin Template for Inventor 2025 and beyond.</Description>
+  <Assembly>{AssemblyPath}</Assembly>
+  <LoadOnStartUp>1</LoadOnStartUp>
+  <UserUnloadable>1</UserUnloadable>
+  <Hidden>0</Hidden>
+  <SupportedSoftwareVersionGreaterThan>28..</SupportedSoftwareVersionGreaterThan>
+  <DataVersion>1</DataVersion>
+  <UserInterfaceVersion>1</UserInterfaceVersion>
+</Addin>
